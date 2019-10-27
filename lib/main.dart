@@ -12,6 +12,7 @@ class BytebankApp extends StatelessWidget {
     );
   }
 }
+
 class FormularioTransferencia extends StatelessWidget {
   final TextEditingController _controllerCampoNumeroConta =
       TextEditingController();
@@ -43,6 +44,7 @@ class FormularioTransferencia extends StatelessWidget {
                 final transferenciaCriada = Transferencia(valor, numeroConta);
 
                 debugPrint('$transferenciaCriada');
+                Navigator.pop(context, transferenciaCriada);
               }
             },
             child: Text('Confirmar'),
@@ -83,6 +85,8 @@ class Editor extends StatelessWidget {
 }
 
 class ListaTransferencias extends StatelessWidget {
+  final List<Transferencia> _transferencias = List();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,13 +95,23 @@ class ListaTransferencias extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
+        onPressed: () {
+          final Future<Transferencia> future =
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return FormularioTransferencia();
+          }));
+
+          future.then((transferenciaRecebida) {
+            _transferencias.add(transferenciaRecebida);
+          });
+        },
       ),
-      body: Column(
-        children: <Widget>[
-          ItemTransferencia(new Transferencia(100, 1000)),
-          ItemTransferencia(new Transferencia(200, 1000)),
-          ItemTransferencia(new Transferencia(300, 2000)),
-        ],
+      body: ListView.builder(
+        itemCount: _transferencias.length,
+        itemBuilder: (context, index) {
+          final transferencia = _transferencias[index];
+          return ItemTransferencia(transferencia);
+        },
       ),
     );
   }
